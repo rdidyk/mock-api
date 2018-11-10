@@ -65,6 +65,7 @@ Web requests mocking service (Prototype)
 ----
 
 ### TODO:
+* ~Add admin panel~
 * Add tests
 * Add swagger schema validation
 * Add mocked URL hits, counters and other useful metrics
