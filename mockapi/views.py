@@ -9,7 +9,7 @@ from flask import (
     request,
 )
 
-from mockapi import models
+from mockapi import models, validators
 from mockapi.database import db
 
 log = logging.getLogger(__name__)
@@ -41,29 +41,31 @@ def mock_create():
     try:
         data = json.loads(body)
     except Exception:
-        return jsonify({
-            'status': 'error',
-            'message': 'invalid request'
-        }), 400
+        return jsonify(
+            status='error',
+            message='invalid request'
+        ), 400
 
     if 'items' not in data:
-        return jsonify({
-            'status': 'error',
-            'message': 'attribute: items is required'
-        }), 400
+        return jsonify(
+            status='error',
+            message='attribute: items is required'
+        ), 400
 
     if not isinstance(data['items'], list):
-        return jsonify({
-            'status': 'error',
-            'message': 'attribute: items must be type of an array'
-        }), 400
+        return jsonify(
+            status='error',
+            message='attribute: items must be type of an array'
+        ), 400
 
     created_items = []
     for item in data['items']:
+        uri = item.get('uri')
+        validators.validate_uri(uri)
         try:
             m = models.MockEndpoint(
                 title=item.get('title'),
-                uri=item.get('uri'),
+                uri=uri,
                 method=item.get('method', 'GET'),
                 response_body=item.get('response_body'),
                 response_type=item.get('response_type'),
@@ -73,19 +75,19 @@ def mock_create():
         except Exception as e:
             db.session.rollback()
             log.exception(e)
-            return jsonify({
-                'status': 'error',
-                'message': str(e)
-            }), 406
+            return jsonify(
+                status='error',
+                message=str(e)
+            ), 406
         else:
             db.session.commit()
             created_items.append(
                 {'id': m.id, 'uri': m.uri}
             )
-    return jsonify({
-        'status': 'success',
-        'created_items': created_items,
-    })
+    return jsonify(
+        status='success',
+        created_items=created_items,
+    )
 
 
 def mock_update(mock_id):
@@ -95,10 +97,14 @@ def mock_update(mock_id):
     try:
         data = json.loads(body)
     except Exception:
-        return jsonify({
-            'status': 'error',
-            'message': 'invalid request'
-        }), 400
+        return jsonify(
+            status='error',
+            message='invalid request'
+        ), 400
+
+    uri = data.get('uri', mock.uri)
+
+    validators.validate_uri(uri)
 
     resp_type = data.get('response_type', mock.response_type)
     resp_body = data.get('response_body')
@@ -110,7 +116,7 @@ def mock_update(mock_id):
         resp_body = mock.response_body
 
     mock.title = data.get('title', mock.title)
-    mock.uri = data.get('uri', mock.uri)
+    mock.uri = uri
     mock.method = data.get('method', mock.method)
     mock.response_body = resp_body
     mock.response_type = data.get('response_type', mock.response_type)
@@ -121,14 +127,14 @@ def mock_update(mock_id):
         db.session.commit()
     except Exception as e:
         log.exception(e)
-        return jsonify({
-            'status': 'error',
-            'message': f'{e}'
-        }), 406
+        return jsonify(
+            status='error',
+            message=f'{e}'
+        ), 406
     else:
-        return jsonify({
-            'status': 'success',
-        })
+        return jsonify(
+            status='success',
+        )
 
 
 def mock_delete(mock_id):
