@@ -62,7 +62,7 @@ Web requests mocking service (Prototype)
     * `curl -X GET http://localhost:5000/greeting`
     * `curl -X GET http://localhost:5000/v1/users/42`
 
-* Example usage inside of pytests:
+* Example usage inside of pytest:
     ```
     import pytest
     import requests
