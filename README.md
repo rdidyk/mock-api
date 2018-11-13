@@ -62,6 +62,52 @@ Web requests mocking service (Prototype)
     * `curl -X GET http://localhost:5000/greeting`
     * `curl -X GET http://localhost:5000/v1/users/42`
 
+* Example usage inside of pytests:
+    ```
+    import pytest
+    import requests
+
+
+    @pytest.fixture
+    def service_url():
+        return 'http://localhost:5000'
+
+
+    @pytest.fixture
+    def mock_users_endpoint(service_url):
+        resp = requests.post(
+            f'{service_url}/v1/mocks/',
+            json={
+                "items": [
+                    {
+                        "uri": "/v1/users/42",
+                        "title": "get user id: 42",
+                        "response_body": {
+                            "name": "John Doe",
+                            "age": 42
+                        }
+                    }
+                ]
+            },
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        yield data
+        # delete record after tests
+        requests.delete(
+            f'{service_url}/v1/mocks/{data["created_items"][0]["id"]}'
+        )
+
+
+    def test_get_user_by_id(service_url, mock_users_endpoint):
+        user_id = 42
+        resp = requests.get(f'{service_url}/v1/users/{user_id}')
+        resp.raise_for_status()
+        resp_data = resp.json()
+        assert resp_data['name'] == 'John Doe'
+        assert resp_data['age'] == 42
+
+    ```
 ----
 
 ### TODO:
