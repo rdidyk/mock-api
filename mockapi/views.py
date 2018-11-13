@@ -58,26 +58,34 @@ def mock_create():
             'message': 'attribute: items must be type of an array'
         }), 400
 
+    created_items = []
     for item in data['items']:
         try:
-            db.session.add(
-                models.MockEndpoint(
-                    title=item.get('title'),
-                    uri=item.get('uri'),
-                    method=item.get('method', 'GET'),
-                    response_body=item.get('response_body'),
-                    response_type=item.get('response_type'),
-                    response_code=item.get('response_code', 200),
-                )
+            m = models.MockEndpoint(
+                title=item.get('title'),
+                uri=item.get('uri'),
+                method=item.get('method', 'GET'),
+                response_body=item.get('response_body'),
+                response_type=item.get('response_type'),
+                response_code=item.get('response_code', 200),
             )
+            db.session.add(m)
         except Exception as e:
+            db.session.rollback()
             log.exception(e)
             return jsonify({
                 'status': 'error',
                 'message': str(e)
             }), 406
-    db.session.commit()
-    return jsonify({'status': 'success'})
+        else:
+            db.session.commit()
+            created_items.append(
+                {'id': m.id, 'uri': m.uri}
+            )
+    return jsonify({
+        'status': 'success',
+        'created_items': created_items,
+    })
 
 
 def mock_update(mock_id):
