@@ -1,5 +1,11 @@
 # mock-api
-Web requests mocking service (Prototype)
+Web requests mocking-api (Prototype)
+
+Web mocking-api can be used for mocking any system you integrate with via HTTP or HTTPS (i.e. services, web sites, etc).  
+When mocking-api receives a requests it matches the request against preconfigured  "Mock Endpoints" that have been configured.  
+A preconfigured "Mock Endpoint" defines the response which should be returned for specific uri.
+
+----
 
 #### launch development version of web service:
 * Create (or activate) virtualenv with python3.6
@@ -17,10 +23,9 @@ Web requests mocking service (Prototype)
 
 #### Using API:
 * Creating of mocks example:
-    ```
-    curl -X POST \
+    ```bash
+    $ curl -X POST \
         http://localhost:5000/v1/mocks/ \
-        -H 'cache-control: no-cache' \
         -H 'content-type: application/json' \
         -d '{
             "items": [
@@ -42,13 +47,18 @@ Web requests mocking service (Prototype)
         }'
     ```
 * Get defined mocks collection:
-    `curl -X GET http://localhost:5000/v1/mocks/`
+    ```bash
+    $ curl -X GET http://localhost:5000/v1/mocks/
+    ```
 
-* Get mock by id: `curl -X GET http://localhost:5000/v1/mocks/1`
+* Get mock by id: 
+    ```bash
+    $ curl -X GET http://localhost:5000/v1/mocks/1
+    ```
 
 * Update existing mock: 
-    ```
-    curl -X PUT \
+    ```bash
+    $ curl -X PUT \
         http://localhost:5000/v1/mocks/2 \
         -H 'content-type: application/json' \
         -d '{
@@ -56,14 +66,23 @@ Web requests mocking service (Prototype)
         }'
     ```
 
-* Delete mock: `curl -X DELETE http://localhost:5000/v1/mocks/2`
+* Delete mock: 
+    ```bash
+    $ curl -X DELETE http://localhost:5000/v1/mocks/2
+    ```
 
 * Test mocks:
-    * `curl -X GET http://localhost:5000/greeting`
-    * `curl -X GET http://localhost:5000/v1/users/42`
-
-* Example usage inside of pytest:
+    ```bash
+    $ curl -X GET http://localhost:5000/greeting
+    ...
+    ...
+    $ curl -X GET http://localhost:5000/v1/users/42
     ```
+
+----
+
+#### Example usage inside of pytest:
+```python
     import pytest
     import requests
 
@@ -107,7 +126,7 @@ Web requests mocking service (Prototype)
         assert resp_data['name'] == 'John Doe'
         assert resp_data['age'] == 42
 
-    ```
+```
 ----
 
 ### TODO:
