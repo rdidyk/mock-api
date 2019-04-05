@@ -1,15 +1,46 @@
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
+from wtforms import TextAreaField
+from wtforms.widgets import TextArea
+
+
+class JsonEditorTextAreaWidget(TextArea):
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('id', 'json-editor')
+        return super().__call__(field, **kwargs)
+
+
+class JsonEditorTextAreaField(TextAreaField):
+    widget = JsonEditorTextAreaWidget()
 
 
 class MockEndpointView(ModelView):
 
-    column_editable_list = [
-        'title', 'uri', 'method',
-        'response_body', 'response_type', 'response_code'
+    extra_js = [
+        '/static/jquery.json-editor.min.js',
+        '/static/admin_common.js',
     ]
 
+    column_editable_list = [
+        'title', 'uri', 'method',
+        'response_type', 'response_code'
+    ]
+    column_exclude_list = ['response_body', 'created', 'updated']
+
     form_excluded_columns = ['created', 'updated']
+
+    form_overrides = {
+        'response_body': JsonEditorTextAreaField
+    }
+
+    form_widget_args = {
+        'response_body': {
+            'rows': 25,
+            'cols': 50,
+            'style': 'color: black',
+            'onkeyup': 'editor.load(getJson())'
+        }
+    }
 
     form_choices = {
         'method': [
