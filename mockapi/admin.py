@@ -35,7 +35,7 @@ class MockEndpointView(ModelView):
 
     form_widget_args = {
         'response_body': {
-            'rows': 25,
+            'rows': 20,
             'cols': 50,
             'style': 'color: black',
             'onkeyup': 'editor.load(getJson())'
