@@ -1,3 +1,4 @@
+import re
 import logging
 from datetime import datetime
 
@@ -17,18 +18,38 @@ log = logging.getLogger(__name__)
 
 def endpoint(uri):
     qs = request.query_string.decode()
-    if qs:
-        requested_uri = f'{request.path}?{request.query_string.decode()}'
+
+    if request.path.startswith('/ns:'):
+        namespace = re.search(
+            r'^/ns:(?P<ns>[a-zA-Z0-9\-_.]+)/', request.path
+        )['ns']
+        path = request.path.replace(f'/ns:{namespace}', '')
     else:
-        requested_uri = request.path
+        namespace = None
+        path = request.path
 
-    mock = models.MockEndpoint.query.filter_by(
-        uri=requested_uri,
-        method=request.method,
-    ).first_or_404()
+    if qs:
+        requested_uri = f'{path}?{request.query_string.decode()}'
+    else:
+        requested_uri = path
 
-    if not mock.method == request.method:
-        abort(404)
+    if namespace:
+        mock = models.MockEndpoint.query.join(
+            models.MockEndpoint.namespace,
+            aliased=True,
+        ).filter(
+            models.Namespace.path == namespace,
+            models.MockEndpoint.uri == requested_uri,
+            models.MockEndpoint.method == request.method,
+            models.MockEndpoint.enabled == 1,
+        ).first_or_404()
+    else:
+        mock = models.MockEndpoint.query.filter_by(
+            uri=requested_uri,
+            method=request.method,
+            enabled=1,
+            namespace_id=None,
+        ).first_or_404()
 
     resp = make_response(mock.response_body, mock.response_code)
     resp.mimetype = mock.response_type

@@ -13,5 +13,5 @@ def create_app(config='mockapi/config.yaml'):
     app.config.from_mapping(utils.load_config(config))
     database.register(app)
     routes.register(app)
-    admin.register(app)
+    admin.views.register(app)
     return app
