@@ -1,5 +1,5 @@
 # mock-api
-Web requests mocking-api (Prototype)
+Web requests mocking-api
 
 Web mocking-api can be used for mocking any system you integrate with via HTTP or HTTPS (i.e. services, web sites, etc).  
 When mocking-api receives a requests it matches the request against preconfigured  "Mock Endpoints" that have been configured.  
