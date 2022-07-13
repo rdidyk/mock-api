@@ -8,7 +8,7 @@ A preconfigured "Mock Endpoint" defines the response which should be returned fo
 ----
 
 #### launch development version of web service:
-* Create (or activate) virtualenv with python3.6
+* Create (or activate) virtualenv with python3.X
 
 * Install app requirements:  
     `$ pip install -r requirements.txt -r requirements_dev.txt`
